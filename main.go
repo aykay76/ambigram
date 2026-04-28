@@ -109,20 +109,29 @@ func scene(bld *gsdf.Builder) (glbuild.Shader3D, error) {
 		RelativeGlyphTolerance: glyphTolerance,
 		Builder:                bld,
 	})
-	err := f.LoadTTFBytes(textsdf.ISO3098TTF())
+	// load TTF from filesystem or embed. The ISO3098 font is a simple sans-serif font that is good for testing.
+	fontBytes, err := os.ReadFile("font.ttf")
+	if err == nil {
+		err = f.LoadTTFBytes(fontBytes)
+	} else {
+		fmt.Println("Error reading font file, using embedded font:", err)
+		err = f.LoadTTFBytes(textsdf.ISO3098TTF())
+	}
+
 	if err != nil {
 		return nil, err
 	}
-	G, _ := f.Glyph('A')
+	G, _ := f.Glyph('J')
 	E, _ := f.Glyph('K')
 
 	bbG := G.Bounds()
 	bbE := E.Bounds()
 	fmt.Println(bbG, bbE)
-	// return nil, errors.New("basdasd")
+
 	szG := bbG.Size()
 	szG.X = szG.X * 50.0
 	szG.Y = szG.Y * 50.0
+
 	szE := bbE.Size()
 	szE.X = szE.X * 50.0
 	szE.Y = szE.Y * 50.0
@@ -157,11 +166,8 @@ func scene(bld *gsdf.Builder) (glbuild.Shader3D, error) {
 
 	// Orient letters.
 	const deg90 = math.Pi / 2
-	GEB1 := bld.Intersection(G3, bld.Rotate(E3, deg90, ms3.Vec{Y: 1}))
+	GEB1 := bld.Intersection(G3, bld.Rotate(E3, -deg90, ms3.Vec{Y: 1}))
 
-	// GEB2 := bld.Intersection(E3, bld.Rotate(G3, deg90, ms3.Vec{Y: 1}))
-	// GEB2 = bld.Translate(GEB2, 0, GEB2.Bounds().Size().Y*1.5, 0)
-	// return bld.Union(GEB1, GEB2), bld.Err()
 	return GEB1, bld.Err()
 }
 
