@@ -121,8 +121,14 @@ func scene(bld *gsdf.Builder) (glbuild.Shader3D, error) {
 	if err != nil {
 		return nil, err
 	}
-	G, _ := f.Glyph('J')
-	E, _ := f.Glyph('K')
+	G, err := f.Glyph('爱')
+	if err != nil {
+		return nil, err
+	}
+	E, err := f.Glyph('你')
+	if err != nil {
+		return nil, err
+	}
 
 	bbG := G.Bounds()
 	bbE := E.Bounds()
@@ -166,7 +172,7 @@ func scene(bld *gsdf.Builder) (glbuild.Shader3D, error) {
 
 	// Orient letters.
 	const deg90 = math.Pi / 2
-	GEB1 := bld.Intersection(G3, bld.Rotate(E3, -deg90, ms3.Vec{Y: 1}))
+	GEB1 := bld.Intersection(G3, bld.Rotate(E3, deg90, ms3.Vec{Y: 1}))
 
 	return GEB1, bld.Err()
 }
@@ -183,6 +189,9 @@ func main() {
 	var bld gsdf.Builder
 	bld.SetFlags(gsdf.FlagNoShaderBuffers)
 	object, err := scene(&bld)
+	if err != nil {
+		log.Fatal("creating scene:", err)
+	}
 	// object = bld.Scale(object, 0.3)
 	// if err != nil {
 	// 	log.Fatal("creating scene:", err)
